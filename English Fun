@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>English Fun Quest!</title>
+
+  <style>
+    :root {
+      --purple: #7656d6;
+      --pink: #ff8db7;
+      --yellow: #ffd75e;
+      --blue: #8edcff;
+      --mint: #93edc4;
+      --ink: #423a59;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(160deg, #bcecff 0%, #e9d8ff 55%, #ffe0ee 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      overflow-x: hidden;
+    }
+
+    .game {
+      width: min(850px, 100%);
+      min-height: min(900px, calc(100vh - 36px));
+      background: rgba(255, 255, 255, 0.94);
+      border: 7px solid white;
+      border-radius: 34px;
+      box-shadow: 0 16px 0 rgba(118, 86, 214, 0.14), 0 20px 40px rgba(80, 50, 130, 0.2);
+      padding: clamp(20px, 4vw, 42px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cloud {
+      position: absolute;
+      color: white;
+      font-size: 3rem;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .cloud.one {
+      top: 15px;
+      left: 18px;
+    }
+
+    .cloud.two {
+      bottom: 15px;
+      right: 20px;
+      font-size: 4rem;
+    }
+
+    .screen {
+      display: none;
+      min-height: 620px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1,
+    h2,
+    p {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 7vw, 4rem);
+      color: var(--purple);
+      margin: 8px 0;
+      text-shadow: 2px 3px 0 #e7dcff;
+    }
+
+    .hero {
+      font-size: clamp(5rem, 18vw, 9rem);
+      margin: 10px 0;
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .rainbow {
+      font-size: clamp(3rem, 10vw, 5rem);
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      line-height: 1.5;
+      margin: 10px auto 22px;
+    }
+
+    button {
+      border: none;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .main-btn {
+      background: linear-gradient(135deg, #ff83b0, #ff64a0);
+      color: white;
+      font-size: clamp(1.2rem, 4vw, 1.7rem);
+      padding: 18px 36px;
+      border-radius: 20px;
+      box-shadow: 0 7px 0 #d9477d;
+      transition: transform 0.15s;
+    }
+
+    .main-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 2px 0 #d9477d;
+    }
+
+    .topbar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      background: #f2edff;
+      color: var(--purple);
+      padding: 10px 14px;
+      border-radius: 15px;
+      font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+      white-space: nowrap;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 18px;
+      border-radius: 20px;
+      background: #eee9f7;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--mint), #51caa3);
+      border-radius: 20px;
+      transition: width 0.35s ease;
+    }
+
+    .question-card {
+      width: 100%;
+      background: linear-gradient(145deg, #fff9d9, #ffffff);
+      border: 4px solid #ffe99b;
+      border-radius: 28px;
+      padding: clamp(18px, 4vw, 30px);
+      text-align: center;
+      box-shadow: 0 7px 0 #f3df96;
+    }
+
+    .question-image {
+      font-size: clamp(4.2rem, 13vw, 7rem);
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      font-size: clamp(1.15rem, 3.5vw, 1.65rem);
+      line-height: 1.55;
+      white-space: pre-line;
+      margin: 8px 0 18px;
+    }
+
+    .info-box {
+      width: 100%;
+      background: #eaf8ff;
+      border: 3px dashed #75c8ed;
+      border-radius: 18px;
+      padding: 12px;
+      margin: 0 0 16px;
+      text-align: center;
+      font-size: clamp(0.9rem, 2.8vw, 1.15rem);
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .answers {
+      width: 100%;
+      display: grid;
+      gap: 13px;
+      margin-top: 20px;
+    }
+
+    .answer {
+      width: 100%;
+      min-height: 72px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      color: var(--ink);
+      font-size: clamp(1rem, 3.2vw, 1.35rem);
+      text-align: left;
+      box-shadow: 0 5px 0 rgba(75, 60, 110, 0.18);
+      transition: transform 0.12s, filter 0.12s;
+    }
+
+    .answer:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 rgba(75, 60, 110, 0.18);
+    }
+
+    .answer:nth-child(1) {
+      background: #cfeeff;
+    }
+
+    .answer:nth-child(2) {
+      background: #fff1a9;
+    }
+
+    .answer:nth-child(3) {
+      background: #ffd5e4;
+    }
+
+    .answer.correct {
+      background: #9df0c6 !important;
+      outline: 4px solid #47bd80;
+    }
+
+    .answer.wrong {
+      background: #ffc1c1 !important;
+      outline: 4px solid #ef7777;
+      opacity: 0.8;
+    }
+
+    .answer-letter {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 34px;
+      height: 34px;
+      margin-right: 12px;
+      background: white;
+      border-radius: 50%;
+      color: var(--purple);
+    }
+
+    .feedback {
+      min-height: 38px;
+      margin: 14px 0 0;
+      font-size: clamp(1.15rem, 3.5vw, 1.45rem);
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .next-btn {
+      display: none;
+      margin-top: 16px;
+      background: var(--purple);
+      color: white;
+      font-size: 1.2rem;
+      padding: 15px 28px;
+      border-radius: 16px;
+      box-shadow: 0 5px 0 #4e379d;
+    }
+
+    .next-btn.show {
+      display: inline-block;
+    }
+
+    .stars-big {
+      font-size: clamp(3.5rem, 12vw, 6rem);
+      margin: 10px 0;
+      letter-spacing: 6px;
+    }
+
+    .score-box {
+      background: #fff5bd;
+      border: 4px solid #ffd75e;
+      border-radius: 24px;
+      padding: 18px 30px;
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      margin: 12px 0 25px;
+      text-align: center;
+    }
+
+    @keyframes bounce {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-3deg);
+      }
+
+      50% {
+        transform: translateY(-12px) rotate(3deg);
+      }
+    }
+
+    @media (max-height: 700px) {
+      .screen {
+        min-height: 0;
+      }
+
+      .hero {
+        font-size: 4.5rem;
+      }
+
+      .question-image {
+        font-size: 4rem;
+      }
+
+      .answer {
+        min-height: 58px;
+        padding: 10px 14px;
+      }
+
+      .question-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game">
+    <div class="cloud one">☁️</div>
+    <div class="cloud two">☁️</div>
+
+    <section id="startScreen" class="screen active">
+      <div class="rainbow">🌈 ⭐ 🌈</div>
+      <h1>English Fun Quest!</h1>
+      <div class="hero">🧒📚👧</div>
+      <p class="subtitle">Tap the right answer!<br />Get 20 stars! ⭐</p>
+      <button class="main-btn" onclick="startGame()">START ▶</button>
+    </section>
+
+    <section id="gameScreen" class="screen">
+      <div class="topbar">
+        <div id="questionNumber" class="badge">Question 1 / 20</div>
+        <div id="starCount" class="badge">⭐ Stars: 0</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div id="progress" class="progress"></div>
+      </div>
+
+      <div class="question-card">
+        <div id="image" class="question-image"></div>
+        <div id="info" class="info-box" style="display: none;"></div>
+        <div id="question" class="question"></div>
+        <div id="answers" class="answers"></div>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+      <button id="nextBtn" class="next-btn" onclick="nextQuestion()">NEXT ▶</button>
+    </section>
+
+    <section id="endScreen" class="screen">
+      <div class="hero">🏆</div>
+      <h1>You are an<br />English Star!</h1>
+      <div class="stars-big">⭐ ⭐ ⭐</div>
+      <div id="finalScore" class="score-box"></div>
+      <button class="main-btn" onclick="restartGame()">PLAY AGAIN 🔄</button>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        image: "👧🍌👦",
+        info: "At snack time, Ella offers a banana to Max.",
+        question: "Ella: Do you want a banana?\n\nMax: ________",
+        answers: ["I've got a banana.", "Yes, I don't.", "Yes, please."],
+        correct: 2
+      },
+      {
+        image: "👧🍜👦",
+        info: "Paul enjoys eating noodles.",
+        question: "Anna: Do you like noodles?\n\nPaul: ________",
+        answers: ["Yes, I do.", "Yes, I am.", "Yes, please."],
+        correct: 0
+      },
+      {
+        image: "👧🥛",
+        info: "Grace is ordering a drink at the school canteen.",
+        question: "Server: What do you want to drink?\n\nGrace: ________",
+        answers: ["Milk is in the fridge.", "I want milk, please.", "I like sandwiches."],
+        correct: 1
+      },
+      {
+        image: "👦🐟",
+        info: "Jack does not like eggs, but he likes fish.",
+        question: "Mum: What do you like?\n\nJack: ________",
+        answers: ["No, I don't.", "Eggs, please.", "I like fish."],
+        correct: 2
+      },
+      {
+        image: "🍛😣",
+        info: "The curry is too hot for Nat.",
+        question: "Teacher: Can you eat spicy curry?\n\nNat: ________",
+        answers: ["No, I can't.", "No, I don't.", "Yes, I can."],
+        correct: 0
+      },
+      {
+        image: "👦🪁",
+        info: "Ava sees Ben playing with a kite.",
+        question: "Ava: Have you got a kite?\n\nBen: ________",
+        answers: ["Yes, I do.", "Yes, I have.", "Yes, please."],
+        correct: 1
+      },
+      {
+        image: "🧸 🤖 ⚽ 🪁",
+        info: "Read the Toy chart.\n\nToy                 Number of children\nDolls                         5\nRobots                       2\nBalls                          4\nKites                           3",
+        question: "Teacher: How many children like balls?\n\nStudent: ________",
+        answers: ["Two children.", "Four child.", "Four children."],
+        correct: 2
+      },
+      {
+        image: "👦🤤",
+        info: "Mark's stomach feels empty after PE class.",
+        question: "Teacher: Are you hungry?\n\nMark: ________",
+        answers: ["Yes, I am.", "Yes, I do.", "Yes, I have."],
+        correct: 0
+      },
+      {
+        image: "⚽👦💧",
+        info: "Tim is thirsty after playing football.",
+        question: "Mum: What do you want to drink?\n\nTim: ________",
+        answers: ["No, thank you.", "I like football.", "I want water, please."],
+        correct: 2
+      },
+      {
+        image: "👧📖👧",
+        info: "Lucy gives one storybook to her friend.",
+        question: "Lucy: ________\n\nFriend: Thank you!",
+        answers: [
+          "These storybooks are for you.",
+          "This storybook is for you.",
+          "There are storybooks for you."
+        ],
+        correct: 1
+      },
+      {
+        image: "🧸🙅",
+        info: "Sam has a ball, but he does not have a teddy bear.",
+        question: "Kate: Have you got a teddy bear?\n\nSam: ________",
+        answers: ["No, I haven't.", "No, I don't.", "No, thank you."],
+        correct: 0
+      },
+      {
+        image: "🧽💰",
+        info: "An eraser costs 14 baht. Tina gives the shopkeeper 20 baht.",
+        question: "Shopkeeper: Here is your change.\nTina: How much is it?\nShopkeeper: ________",
+        answers: ["4 baht.", "8 baht.", "6 baht."],
+        correct: 2
+      },
+      {
+        image: "🍎🔤",
+        info: "",
+        question: "I / want / an / apple / please / .",
+        answers: [
+          "Want I an apple, please.",
+          "I want an apple, please.",
+          "An apple I please want."
+        ],
+        correct: 1
+      },
+      {
+        image: "👩‍🏫💌💌👧",
+        info: "The teacher gives two birthday cards to Anna.",
+        question: "Teacher: ________\n\nAnna: Thank you.",
+        answers: [
+          "These cards are for you.",
+          "This cards are for you.",
+          "These card is for you."
+        ],
+        correct: 0
+      },
+      {
+        image: "🍕🍔🥗",
+        info: "Passage 1: Our Favourite Food\n\nThe children talk about food.\n\nMook: I like pizza.\nDan: I like burgers.\nJane: I like pizza, too.\nTom: I like pizza and salad.\nTeacher: What do you want to drink?\nChildren: Milk, please!",
+        question: "Which food do three children like?",
+        answers: ["Burgers.", "Salad.", "Pizza."],
+        correct: 2
+      },
+      {
+        image: "🥛😊",
+        info: "Passage 1: Our Favourite Food\n\nTeacher: What do you want to drink?\nChildren: Milk, please!",
+        question: "What do the children want to drink?",
+        answers: ["Water.", "Milk.", "Cola."],
+        correct: 1
+      },
+      {
+        image: "🐷🟫",
+        info: "Passage 2: The Little Pig\n\nBen: Look at the little pig.\nMay: Is it in the mud?\nBen: Yes, its legs are wet.\nMay: Let's help it!",
+        question: "What animal do Ben and May see?",
+        answers: ["A pig.", "A hen.", "A dog."],
+        correct: 0
+      },
+      {
+        image: "🐷💦",
+        info: "Passage 2: The Little Pig\n\nBen: Yes, its legs are wet.",
+        question: "What part of the pig is wet?",
+        answers: ["Its ears.", "Its nose.", "Its legs."],
+        correct: 2
+      },
+      {
+        image: "🐦🏫",
+        info: "The children see a bird flying above the school.",
+        question: "Teacher: What helps a bird fly?\n\nNina: Its ________.",
+        answers: ["fins", "wings", "eggs"],
+        correct: 1
+      },
+      {
+        image: "👨📦👧",
+        info: "Dad carries a large box into the house.",
+        question: "Mia: Is that a small box?\n\nDad: No, it is very ________.",
+        answers: ["big", "wet", "ten"],
+        correct: 0
+      }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let locked = false;
+
+    function startGame() {
+      current = 0;
+      score = 0;
+      showScreen("gameScreen");
+      renderQuestion();
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach((screen) => {
+        screen.classList.remove("active");
+      });
+
+      document.getElementById(id).classList.add("active");
+    }
+
+    function renderQuestion() {
+      locked = false;
+
+      const q = questions[current];
+      const questionNumber = document.getElementById("questionNumber");
+      const starCount = document.getElementById("starCount");
+      const progress = document.getElementById("progress");
+      const image = document.getElementById("image");
+      const question = document.getElementById("question");
+      const info = document.getElementById("info");
+      const answers = document.getElementById("answers");
+      const feedback = document.getElementById("feedback");
+      const nextBtn = document.getElementById("nextBtn");
+
+      questionNumber.textContent = `Question ${current + 1} / ${questions.length}`;
+      starCount.textContent = `⭐ Stars: ${score}`;
+      progress.style.width = `${(current / questions.length) * 100}%`;
+      image.textContent = q.image;
+      question.textContent = q.question;
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+
+      if (q.info && q.info.trim() !== "") {
+        info.textContent = q.info;
+        info.style.display = "block";
+      } else {
+        info.style.display = "none";
+      }
+
+      answers.innerHTML = "";
+
+      q.answers.forEach((answer, index) => {
+        const button = document.createElement("button");
+
+        button.className = "answer";
+        button.innerHTML = `<span class="answer-letter">${"ABC"[index]}</span>${answer}`;
+        button.onclick = () => checkAnswer(index, button);
+
+        answers.appendChild(button);
+      });
+    }
+
+    function checkAnswer(answerIndex, button) {
+      if (locked) return;
+
+      const q = questions[current];
+
+      if (answerIndex === q.correct) {
+        locked = true;
+        score++;
+
+        button.classList.add("correct");
+
+        document.getElementById("starCount").textContent = `⭐ Stars: ${score}`;
+        document.getElementById("feedback").textContent = "🎉 Great job! You got a star!";
+        document.getElementById("nextBtn").classList.add("show");
+      } else {
+        button.classList.add("wrong");
+        button.disabled = true;
+        document.getElementById("feedback").textContent = "💛 Try again!";
+      }
+    }
+
+    function nextQuestion() {
+      current++;
+
+      if (current < questions.length) {
+        renderQuestion();
+      } else {
+        finishGame();
+      }
+    }
+
+    function finishGame() {
+      document.getElementById("progress").style.width = "100%";
+
+      document.getElementById("finalScore").innerHTML =
+        `Your score:<br><strong>${score} / ${questions.length}</strong><br>⭐ ${score} stars`;
+
+      showScreen("endScreen");
+    }
+
+    function restartGame() {
+      startGame();
+    }
+  </script>
+</body>
+</html>
