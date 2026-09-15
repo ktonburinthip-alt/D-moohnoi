@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ผจญภัยสวนสัตว์วิทย์จิ๋ว</title>
+
+  <style>
+    :root {
+      --green: #239555;
+      --dark-green: #125d35;
+      --light-green: #dff5cf;
+      --yellow: #ffd84a;
+      --orange: #ff9e3d;
+      --blue: #45b5ee;
+      --red: #ef6262;
+      --cream: #fffbed;
+      --text: #244332;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Arial Rounded MT Bold", "Noto Sans Thai", Tahoma, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, #fff 0 3%, transparent 3.5%),
+        radial-gradient(circle at 85% 14%, #fff 0 4%, transparent 4.5%),
+        linear-gradient(#8edcff 0 30%, #91d769 30% 100%);
+    }
+
+    .app {
+      width: min(100%, 960px);
+      min-height: 100vh;
+      margin: auto;
+      padding: max(16px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .start-screen,
+    .end-screen,
+    .game-card {
+      background: var(--cream);
+      border: 6px solid #fff;
+      border-radius: 30px;
+      box-shadow: 0 8px 0 #59aa50;
+    }
+
+    .start-screen,
+    .end-screen {
+      max-width: 760px;
+      margin: 7vh auto;
+      padding: clamp(28px, 6vw, 55px);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 10px 0;
+      color: var(--dark-green);
+      font-size: clamp(31px, 6vw, 52px);
+    }
+
+    .start-screen p,
+    .end-screen p {
+      font-size: clamp(18px, 3vw, 25px);
+      line-height: 1.65;
+    }
+
+    .zoo-animals {
+      font-size: clamp(43px, 8vw, 75px);
+      margin-bottom: 10px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      border-radius: 22px;
+      background: #ffffffdd;
+      box-shadow: 0 5px 0 #5baa49;
+    }
+
+    .logo {
+      color: var(--dark-green);
+      font-size: clamp(19px, 3vw, 29px);
+      font-weight: 900;
+    }
+
+    .score {
+      white-space: nowrap;
+      padding: 8px 13px;
+      border-radius: 15px;
+      background: #fff3bd;
+      font-size: clamp(16px, 2.5vw, 22px);
+      font-weight: 900;
+    }
+
+    .progress-box {
+      height: 18px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 2px solid #fff;
+      border-radius: 99px;
+      background: #ffffffb8;
+    }
+
+    .progress {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffd742, #ff9e36);
+      transition: width 0.35s ease;
+    }
+
+    .game-card {
+      min-height: 75vh;
+      padding: clamp(20px, 4vw, 38px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-card::before,
+    .game-card::after {
+      content: "🌿";
+      position: absolute;
+      z-index: 0;
+      opacity: 0.28;
+      font-size: 68px;
+    }
+
+    .game-card::before {
+      top: 0;
+      left: 0;
+      transform: rotate(-25deg);
+    }
+
+    .game-card::after {
+      right: 0;
+      bottom: 0;
+      transform: rotate(25deg);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .zone {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 99px;
+      background: var(--light-green);
+      color: var(--dark-green);
+      font-size: clamp(15px, 2.3vw, 20px);
+      font-weight: 900;
+    }
+
+    .animal {
+      margin: 10px 0 5px;
+      font-size: clamp(55px, 10vw, 90px);
+      line-height: 1;
+    }
+
+    .counter {
+      color: #59715f;
+      font-size: clamp(15px, 2vw, 18px);
+      font-weight: bold;
+    }
+
+    .visual {
+      max-width: 620px;
+      margin: 16px auto;
+      padding: 10px;
+      border: 3px dashed var(--blue);
+      border-radius: 20px;
+      background: #e8f7ff;
+    }
+
+    .visual img {
+      display: block;
+      width: 100%;
+      max-height: 310px;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+
+    .visual small {
+      display: block;
+      margin-top: 7px;
+      color: #356b83;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .question {
+      max-width: 780px;
+      margin: 18px auto;
+      font-size: clamp(22px, 3.7vw, 34px);
+      line-height: 1.48;
+      font-weight: 900;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      max-width: 730px;
+      margin: auto;
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      touch-action: manipulation;
+      border: none;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:active {
+      transform: translateY(3px);
+    }
+
+    .answer-btn {
+      width: 100%;
+      min-height: 68px;
+      padding: 14px 18px;
+      border: 3px solid #d2ead0;
+      border-radius: 20px;
+      box-shadow: 0 4px 0 #add6a7;
+      background: #fff;
+      color: var(--text);
+      text-align: left;
+      font-size: clamp(18px, 2.8vw, 25px);
+    }
+
+    .answer-btn:hover {
+      filter: brightness(0.98);
+    }
+
+    .answer-btn.correct {
+      background: #c5f5bb;
+      border-color: #45ad53;
+    }
+
+    .answer-btn.wrong {
+      background: #ffd4cf;
+      border-color: var(--red);
+    }
+
+    .message {
+      display: none;
+      max-width: 700px;
+      margin: 18px auto 0;
+      padding: 16px;
+      border-radius: 19px;
+      font-size: clamp(18px, 2.6vw, 24px);
+      font-weight: 900;
+    }
+
+    .message.good {
+      display: block;
+      background: #d1f7ca;
+      color: #176c39;
+    }
+
+    .message.try {
+      display: block;
+      background: #ffe0da;
+      color: #a73b31;
+    }
+
+    .action-btn {
+      margin-top: 18px;
+      padding: 13px 22px;
+      border-radius: 18px;
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 4px 0 #267fb7;
+      font-size: clamp(17px, 2.5vw, 22px);
+    }
+
+    .start-btn {
+      background: var(--orange);
+      box-shadow: 0 5px 0 #c66c20;
+      font-size: clamp(21px, 3.2vw, 28px);
+    }
+
+    .next-btn {
+      background: var(--green);
+      box-shadow: 0 4px 0 #176d3b;
+    }
+
+    .listen-row {
+      margin-top: 15px;
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        padding: 10px 12px;
+      }
+
+      .game-card {
+        padding: 18px 12px;
+      }
+
+      .answer-btn {
+        min-height: 62px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <section id="startScreen" class="start-screen">
+      <div class="zoo-animals">🦁 🐼 🦒 🐘 🦦</div>
+      <h1>ผจญภัยสวนสัตว์วิทย์จิ๋ว</h1>
+      <p>
+        ช่วยเพื่อนสัตว์ตอบคำถามวิทยาศาสตร์<br>
+        ตอบถูก รับดาวอุ้งเท้า ⭐🐾
+      </p>
+      <button class="action-btn start-btn" onclick="startGame()">
+        เริ่มผจญภัย! 🚀
+      </button>
+    </section>
+
+    <section id="gameScreen" class="hidden">
+      <header class="topbar">
+        <div class="logo">🦁 สวนสัตว์วิทย์จิ๋ว</div>
+        <div class="score">⭐ <span id="stars">0</span> ดาว</div>
+      </header>
+
+      <div class="progress-box">
+        <div id="progress" class="progress"></div>
+      </div>
+
+      <article class="game-card">
+        <div class="content">
+          <div id="zone" class="zone"></div>
+          <div id="animal" class="animal"></div>
+          <div id="counter" class="counter"></div>
+          <div id="visual" class="visual hidden"></div>
+          <div id="question" class="question"></div>
+          <div id="answers" class="answers"></div>
+          <div id="message" class="message"></div>
+          <div id="nextArea"></div>
+
+          <div class="listen-row">
+            <button class="action-btn" onclick="speakQuestion()">
+              🔊 ฟังคำถาม
+            </button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="endScreen" class="end-screen hidden">
+      <div class="zoo-animals">🎉 🦁 🐼 🦒 🐘 🦦 🎉</div>
+      <h1>เก่งมาก นักวิทย์น้อย!</h1>
+      <p id="resultText"></p>
+      <p id="awardText"></p>
+      <button class="action-btn start-btn" onclick="startGame()">
+        เล่นอีกครั้ง 🔄
+      </button>
+    </section>
+
+  </main>
+
+  <script>
+    const questions = [
+      {
+        zone: "โซน 1: สวนพืชของแพนด้า 🌱",
+        animal: "🐼",
+        q: "บีสังเกตการเจริญเติบโตของพืชที่ปลูกไว้ แล้วบันทึกการเปลี่ยนแปลงทุกวัน บีใช้ทักษะอะไรเอ่ย?",
+        choices: ["📏 การวัด", "👀 การสังเกต", "🗂️ การจำแนกประเภท"],
+        answer: 1,
+        explain: "การดูและบันทึกสิ่งที่เปลี่ยนแปลง คือ การสังเกต"
+      },
+      {
+        zone: "โซน 1: สวนพืชของแพนด้า 🌱",
+        animal: "🐼",
+        q: "ซีคัดเลือกเมล็ดถั่วแดงที่ลีบออกก่อนนำไปต้ม ใช้ทักษะอะไร?",
+        choices: ["🗂️ การจำแนกประเภท", "📊 การจัดกระทำข้อมูล", "💭 การลงความเห็นจากข้อมูล"],
+        answer: 0,
+        explain: "ซีแยกเมล็ดลีบออกจากเมล็ดดี จึงเป็นการจำแนกประเภท"
+      },
+      {
+        zone: "โซน 1: สวนพืชของแพนด้า 🌱",
+        animal: "🐼",
+        q: "ก้อยใช้เครื่องชั่งสปริงชั่งก้อนหิน 3 ครั้ง แล้วหาค่าเฉลี่ย ใช้ทักษะอะไร?",
+        choices: ["📏 การวัด", "👀 การสังเกต", "🔢 การใช้จำนวน"],
+        answer: 2,
+        explain: "มีการชั่ง 3 ครั้งและหาค่าเฉลี่ย จึงใช้ทักษะการใช้จำนวน"
+      },
+      {
+        zone: "โซน 1: สวนพืชของแพนด้า 🌱",
+        animal: "🐼",
+        q: "ตึ๋งเห็นเมฆดำครึ้มลอยต่ำ แล้วพูดว่า วันนี้ฝนตกแน่ ๆ ใช้ทักษะอะไร?",
+        choices: ["📏 การวัด", "🧪 การทดลอง", "🌧️ การพยากรณ์"],
+        answer: 2,
+        explain: "การคาดเดาสิ่งที่จะเกิดขึ้น คือ การพยากรณ์"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "สิ่งใดไม่มีสมบัติการดูดซับน้ำ?",
+        choices: ["🧽 ฟองน้ำ", "🧥 เสื้อกันฝน", "🧻 กระดาษทิชชู"],
+        answer: 1,
+        explain: "เสื้อกันฝนช่วยกันน้ำ จึงไม่ดูดซับน้ำ"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        visual: `
+     <img src="folded-cloth.jpg"
+     alt="ผ้าพับซ้อนกันหลายชั้น"
+     onerror="this.style.display='none'; this.parentElement.innerHTML += '<small>❌ ไม่พบไฟล์ folded-cloth.jpg<br>กรุณาตรวจสอบชื่อไฟล์และตำแหน่งไฟล์</small>';">
+        `,
+        q: "จากภาพ สิ่งของชนิดนี้ควรมีสมบัติอย่างไร?",
+        choices: ["☔ กันน้ำได้ดี", "⚡ นำไฟฟ้าได้ดี", "💧 ดูดซับน้ำได้ดี"],
+        answer: 2,
+        explain: "ผ้าควรดูดซับน้ำได้ดี"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "วัสดุใดแข็งแรง ทนทาน เหมาะสำหรับใช้ก่อสร้างบ้าน?",
+        choices: ["🏺 เซรามิก", "🧱 อิฐบล็อก", "🥛 แก้วทนความร้อน"],
+        answer: 1,
+        explain: "อิฐบล็อกแข็งแรงและเหมาะกับการก่อสร้าง"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "ภาชนะสำหรับต้ม นึ่ง และทอด ควรมีคุณสมบัติอย่างไร?",
+        choices: ["🔥 ทนทาน และนำความร้อนได้", "🔥 นำความร้อนได้ และติดไฟง่าย", "🧊 ไม่นำความร้อน"],
+        answer: 0,
+        explain: "ภาชนะทำอาหารต้องทนทานและนำความร้อนได้"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "ดอกยางที่ล้อรถยนต์มีประโยชน์อย่างไร?",
+        choices: ["💨 เพิ่มความเร็ว", "☁️ เพิ่มความอ่อนนุ่ม", "🚗 เพิ่มการยึดเกาะถนน"],
+        answer: 2,
+        explain: "ดอกยางช่วยให้รถเกาะถนนและไม่ลื่นง่าย"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "เพราะเหตุใดจึงนิยมนำผ้ามาทำเป็นหมอน?",
+        choices: ["🌈 มีสีสันสวยงาม", "☁️ มีความอ่อนนุ่ม", "💪 มีความแข็งแรง"],
+        answer: 1,
+        explain: "หมอนควรมีความอ่อนนุ่มเพื่อให้นอนสบาย"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "หม้อที่ใช้ประกอบอาหารส่วนใหญ่ทำจากวัสดุใด และมีสมบัติอย่างไร?",
+        choices: ["🪵 ไม้ ติดไฟง่าย", "🍲 โลหะ นำความร้อน", "🥤 พลาสติก น้ำหนักเบา"],
+        answer: 1,
+        explain: "โลหะนำความร้อนได้ เหมาะสำหรับทำหม้อ"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "วัสดุที่มีสมบัติยืดหยุ่น เหมาะสำหรับใช้ทำสิ่งใด?",
+        choices: ["📚 หนังสือ", "⚽ ลูกฟุตบอล", "📏 ไม้บรรทัดเหล็ก"],
+        answer: 1,
+        explain: "ลูกฟุตบอลต้องยืดหยุ่นและคืนรูปได้"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        visual: `
+          <img src="concrete-block.jpg" alt="วัสดุกระเบื้องหรืออิฐบล็อก">
+          <small>วัสดุสำหรับงานก่อสร้าง</small>
+        `,
+        q: "จากภาพ วัสดุนี้เหมาะที่จะนำมาทำสิ่งของในข้อใด?",
+        choices: ["🗄️ ตู้", "🔪 มีด", "🪑 โต๊ะ"],
+        answer: 2,
+        explain: "วัสดุนี้แข็งแรงและทนทาน เหมาะนำมาทำโต๊ะ"
+      },
+      {
+        zone: "โซน 3: จุดรีไซเคิลของยีราฟ ♻️",
+        animal: "🦒",
+        q: "ประโยชน์ของการนำวัสดุที่ใช้แล้วกลับมาใช้ใหม่คืออะไร?",
+        choices: ["🗑️ ลดปริมาณขยะ", "💰 ทำให้ราคาแพงขึ้น", "⏱️ ทำให้ย่อยสลายเร็วขึ้น"],
+        answer: 0,
+        explain: "การนำกลับมาใช้ใหม่ช่วยลดปริมาณขยะ"
+      },
+      {
+        zone: "โซน 3: จุดรีไซเคิลของยีราฟ ♻️",
+        animal: "🦒",
+        q: "ใครช่วยลดปริมาณขยะได้ดีที่สุด?",
+        choices: ["💸 แก้มเลือกใช้ของราคาถูก", "🍂 โต้งใช้ของย่อยสลายง่าย", "🥤 ก้อยพกแก้วส่วนตัวไปซื้อน้ำ"],
+        answer: 2,
+        explain: "การพกแก้วส่วนตัวช่วยลดการใช้แก้วพลาสติก"
+      },
+      {
+        zone: "โซน 3: จุดรีไซเคิลของยีราฟ ♻️",
+        animal: "🦒",
+        q: "ภาชนะพลาสติกที่ใช้แล้ว นำกลับมาใช้ใหม่อย่างไรเหมาะสมที่สุด?",
+        choices: ["⚖️ นำไปชั่งกิโลขาย", "🔥 นำไปเผาทำลาย", "🪴 นำไปทำกระถางต้นไม้"],
+        answer: 2,
+        explain: "การทำกระถางต้นไม้ คือการใช้ซ้ำอย่างคุ้มค่า"
+      },
+      {
+        zone: "โซน 3: จุดรีไซเคิลของยีราฟ ♻️",
+        animal: "🦒",
+        q: "ฟ้าใสบริจาคห่วงดึงฝากระป๋องเพื่อทำขาเทียม เป็นการใช้วัสดุอย่างคุ้มค่าแบบใด?",
+        choices: ["🔁 ใช้ซ้ำ Reuse", "➖ ลดการใช้ Reduce", "♻️ แปรใช้ใหม่ Recycle"],
+        answer: 2,
+        explain: "เป็นการนำวัสดุไปแปรใช้ใหม่ หรือ Recycle"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "ข้อใดจัดเป็นสิ่งมีชีวิตทั้งหมด?",
+        choices: ["🐶 สุนัข นก ก้อนหิน", "🧑 คน ต้นไม้ ม้าลาย", "🚗 รถยนต์ จักรยาน เครื่องบิน"],
+        answer: 1,
+        explain: "คน ต้นไม้ และม้าลาย เป็นสิ่งมีชีวิตทั้งหมด"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "สิ่งมีชีวิตใดสร้างอาหารเองได้?",
+        choices: ["🌵 ต้นกระบองเพชร", "🐶 สุนัข", "🍄 เห็ด"],
+        answer: 0,
+        explain: "พืชสร้างอาหารเองได้ด้วยแสงแดด"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "ข้อใดคือสิ่งมีชีวิตทั้งหมด?",
+        choices: ["🐦 นก เป็ด", "🦆 เป็ด หุ่นยนต์", "🤖 หุ่นยนต์ เครื่องบิน"],
+        answer: 0,
+        explain: "นกและเป็ดเป็นสิ่งมีชีวิต"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "กลุ่มที่ 1 มีต้นไม้ ปลา และ A กลุ่มที่ 2 มีดินสอ หนังสือ และ B A และ B คืออะไรตามลำดับ?",
+        choices: ["🐶 สุนัข และ 🐱 แมว", "🐦 นก และ 🖊️ ปากกา", "📏 ไม้บรรทัด และ ยางลบ"],
+        answer: 1,
+        explain: "นกเป็นสิ่งมีชีวิต ส่วนปากกาเป็นสิ่งไม่มีชีวิต"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "กลุ่ม A มีนก สุนัข ไก่ ห่าน กลุ่ม B มีดิน น้ำ ดินสอ รถยนต์ ใช้เกณฑ์ใดจัดกลุ่ม?",
+        choices: ["🌱 มีชีวิต และ ไม่มีชีวิต", "💨 ไม่หายใจ และ หายใจได้", "🏃 ไม่เคลื่อนที่ และ เคลื่อนที่ได้"],
+        answer: 0,
+        explain: "กลุ่ม A เป็นสิ่งมีชีวิต ส่วนกลุ่ม B เป็นสิ่งไม่มีชีวิต"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "ปัจจัยใดจำเป็นต่อการดำรงชีวิตของสิ่งมีชีวิต?",
+        choices: ["💧 น้ำ ดิน ที่อยู่อาศัย", "🍚 อาหาร น้ำ อากาศ", "💊 อากาศ อาหาร ยารักษาโรค"],
+        answer: 1,
+        explain: "สิ่งมีชีวิตต้องมีอาหาร น้ำ และอากาศ"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "ข้อใดแสดงถึงลักษณะของสิ่งมีชีวิต?",
+        choices: ["🚗 รถยนต์วิ่งได้เร็ว", "🎈 ลูกโป่งใหญ่ขึ้นเมื่อเติมลม", "😅 น้องตาลเหงื่อออกเพราะอากาศร้อน"],
+        answer: 2,
+        explain: "การขับเหงื่อเป็นลักษณะหนึ่งของสิ่งมีชีวิต"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        q: "A ต้องการอากาศหายใจ และ B ไม่มีการขับถ่าย A และ B คือข้อใด?",
+        choices: ["🌳 ต้นไม้ และ 🚿 บัวรดน้ำ", "📱 โทรศัพท์ และ 💡 โคมไฟ", "🦋 ผีเสื้อ และ 🐰 กระต่าย"],
+        answer: 0,
+        explain: "ต้นไม้ต้องการอากาศ ส่วนบัวรดน้ำเป็นสิ่งไม่มีชีวิต"
+      },
+      {
+        zone: "โซน 4: เพื่อนมีชีวิต 🐯",
+        animal: "🐯",
+        visual: `
+          <img src="trees.jpg" alt="ต้นไม้ 3 ต้น">
+          <small>ต้นไม้ในสวนสัตว์</small>
+        `,
+        q: "จากภาพ ต้นไม้จัดอยู่ในกลุ่มใด?",
+        choices: [
+          "🌱 สิ่งมีชีวิต เพราะสามารถขยายพันธุ์ได้",
+          "❌ สิ่งมีชีวิต เพราะไม่มีการขับถ่ายของเสีย",
+          "🚫 สิ่งไม่มีชีวิต เพราะไม่สามารถเคลื่อนที่ได้เอง"
+        ],
+        answer: 0,
+        explain: "ต้นไม้เป็นสิ่งมีชีวิต เพราะเจริญเติบโตและขยายพันธุ์ได้"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        q: "กลุ่มใดเป็นวัสดุที่ดูดซับน้ำได้ทั้งหมด?",
+        choices: ["พลาสติก ยาง ผ้า", "ไม้ พลาสติก กระดาษ", "ผ้า กระดาษชำระ ฟองน้ำ"],
+        answer: 2,
+        explain: "ผ้า กระดาษชำระ และฟองน้ำ ดูดซับน้ำได้"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        q: "ข้อใดเรียงวัสดุที่ดูดซับน้ำ และไม่ดูดซับน้ำ ตามลำดับ?",
+        choices: ["☁️ สำลี และ 🪞 กระจก", "👕 เสื้อยืด และ ผ้าพันคอ", "🧴 ขวดน้ำ และ ยางรัดผม"],
+        answer: 0,
+        explain: "สำลีดูดซับน้ำได้ แต่กระจกไม่ดูดซับน้ำ"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        q: "เมื่อน้ำหกใส่ผ้าปูโต๊ะ ผ่านไปนานน้ำยังเปียกอยู่เหมือนเดิม ผ้าปูโต๊ะน่าจะทำจากอะไร?",
+        choices: ["👕 ผ้า", "🧻 กระดาษ", "☔ พลาสติก"],
+        answer: 2,
+        explain: "พลาสติกไม่ดูดซับน้ำ จึงยังมีน้ำอยู่บนผิว"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        q: "A ผิวเรียบ ฉีกง่าย ดูดน้ำได้ B นุ่ม เบา ดูดน้ำได้ C เรียบ แข็งแรง ไม่ดูดน้ำ A B และ C คืออะไร?",
+        choices: ["ซองจดหมาย เสื้อกันฝน ถุงเท้า", "ธนบัตร กระโปรง แก้วสแตนเลส", "กระดาษทิชชู ปกพลาสติก ตุ๊กตาหมี"],
+        answer: 1,
+        explain: "ธนบัตร กระโปรง และแก้วสแตนเลส มีสมบัติตรงตามคำบอก"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        q: "ข้อใดเรียงลำดับการดูดซับน้ำจากมากไปน้อยได้ถูกต้อง?",
+        choices: ["หนังสือ ผ้าเช็ดหน้า ถุงเท้า", "ฟองน้ำ ผ้าเช็ดโต๊ะ กระดาษหนังสือพิมพ์", "พรมเช็ดเท้า ฟิวเจอร์บอร์ด กระดาษห่อของขวัญ"],
+        answer: 1,
+        explain: "ฟองน้ำดูดน้ำได้มาก จากนั้นเป็นผ้า แล้วจึงเป็นกระดาษ"
+      },
+      {
+        zone: "โซน 3: จุดรีไซเคิลของยีราฟ ♻️",
+        animal: "🦒",
+        q: "วัตถุใดนำกลับมาใช้ใหม่ได้อย่างถูกต้องและปลอดภัย?",
+        choices: ["📦 กระดาษแข็งทำถังใส่น้ำ", "🧊 แผ่นโฟมทำกระทงลอยน้ำ", "🪴 ขวดพลาสติกทำแจกันดอกไม้"],
+        answer: 2,
+        explain: "ขวดพลาสติกนำมาทำแจกันดอกไม้ได้อย่างปลอดภัย"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        visual: `
+          <img src="water-test-ab.jpg" alt="การทดลองวัสดุ A และวัสดุ B ในน้ำ">
+          <small>แก้ว A มีน้ำน้อยกว่า แสดงว่าวัสดุ A ดูดน้ำไปมากกว่า</small>
+        `,
+        q: "จากภาพ เมื่อยกวัสดุ A และ B ขึ้น วัสดุใดดูดซับน้ำได้ดีกว่า?",
+        choices: [
+          "💧 วัสดุ A ดูดซับน้ำได้ดีกว่าวัสดุ B",
+          "💧 วัสดุ B ดูดซับน้ำได้ดีกว่าวัสดุ A",
+          "💧 วัสดุ A และ B ดูดซับน้ำได้เท่ากัน"
+        ],
+        answer: 0,
+        explain: "แก้ว A มีน้ำน้อยกว่า แสดงว่าวัสดุ A ดูดน้ำไปมากกว่า"
+      },
+      {
+        zone: "โซน 3: จุดรีไซเคิลของยีราฟ ♻️",
+        animal: "🦒",
+        q: "ข้อใดเป็นการนำวัสดุที่ใช้แล้วกลับมาใช้ใหม่อย่างเหมาะสม?",
+        choices: ["🌸 นำกระดาษสีเหลือใช้มาประดิษฐ์ดอกไม้", "🗞️ รวบรวมหนังสือพิมพ์ไปชั่งกิโลขาย", "🥤 ใช้หลอดพลาสติกซ้ำจนรั่ว"],
+        answer: 0,
+        explain: "กระดาษสีเหลือใช้สามารถนำมาประดิษฐ์สิ่งของใหม่ได้"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "แข็งแรง ทนทาน นำความร้อนและนำไฟฟ้าได้ เป็นสมบัติของวัสดุชนิดใด?",
+        choices: ["🪵 ไม้", "🥛 แก้ว", "🔩 เหล็ก"],
+        answer: 2,
+        explain: "เหล็กแข็งแรง ทนทาน และนำความร้อนกับไฟฟ้าได้"
+      },
+      {
+        zone: "โซน 2: บ้านวัสดุของช้าง 🧽",
+        animal: "🐘",
+        q: "หากต้องการผลิตแก้วน้ำที่น้ำหนักเบาและไม่เปราะแตกง่าย ควรใช้วัสดุใด?",
+        choices: ["🥛 แก้ว", "🥤 พลาสติก", "🧱 กระเบื้อง"],
+        answer: 1,
+        explain: "พลาสติกมีน้ำหนักเบาและไม่เปราะแตกง่าย"
+      },
+      {
+        zone: "โซน 5: ภารกิจน้ำของนาก 💧",
+        animal: "🦦",
+        q: "ผ้าเช็ดตัวควรมีสมบัติอย่างไร?",
+        choices: ["💧 ดูดซับน้ำได้", "🌈 สีสันสวยงาม", "💪 แข็งแรงทนทาน"],
+        answer: 0,
+        explain: "ผ้าเช็ดตัวควรดูดซับน้ำได้ดี"
+      }
+    ];
+
+    let current = 0;
+    let stars = 0;
+    let answered = false;
+
+    function startGame() {
+      current = 0;
+      stars = 0;
+      answered = false;
+
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.add("hidden");
+      document.getElementById("gameScreen").classList.remove("hidden");
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+
+      const item = questions[current];
+      const visual = document.getElementById("visual");
+      const answers = document.getElementById("answers");
+      const message = document.getElementById("message");
+
+      document.getElementById("zone").textContent = item.zone;
+      document.getElementById("animal").textContent = item.animal;
+      document.getElementById("counter").textContent = `ข้อ ${current + 1} จาก ${questions.length}`;
+      document.getElementById("question").textContent = item.q;
+      document.getElementById("stars").textContent = stars;
+      document.getElementById("progress").style.width = `${(current / questions.length) * 100}%`;
+
+      if (item.visual) {
+        visual.innerHTML = item.visual;
+        visual.classList.remove("hidden");
+      } else {
+        visual.innerHTML = "";
+        visual.classList.add("hidden");
+      }
+
+      answers.innerHTML = "";
+      message.className = "message";
+      message.textContent = "";
+      document.getElementById("nextArea").innerHTML = "";
+
+      item.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.className = "answer-btn";
+        button.innerHTML = `<strong>${["①", "②", "③"][index]}</strong> ${choice}`;
+        button.onclick = () => checkAnswer(index, button);
+        answers.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selected, button) {
+      if (answered) return;
+
+      const item = questions[current];
+      const message = document.getElementById("message");
+
+      if (selected === item.answer) {
+        answered = true;
+        stars++;
+
+        button.classList.add("correct");
+        document.getElementById("stars").textContent = stars;
+
+        message.className = "message good";
+        message.innerHTML = `🎉 เก่งมาก! ${item.explain}<br>ได้รับดาวอุ้งเท้า 1 ดวง ⭐🐾`;
+
+        speak(`เก่งมาก ${item.explain}`);
+
+        const nextText = current === questions.length - 1
+          ? "ดูผลการผจญภัย 🏆"
+          : "ไปช่วยเพื่อนตัวต่อไป ➜";
+
+        document.getElementById("nextArea").innerHTML = `
+          <button class="action-btn next-btn" onclick="nextQuestion()">
+            ${nextText}
+          </button>
+        `;
+      } else {
+        button.classList.add("wrong");
+        message.className = "message try";
+        message.textContent = "💡 ลองคิดอีกนิดนะ! นักวิทย์น้อยทำได้แน่นอน";
+        speak("ลองคิดอีกนิดนะ");
+
+        setTimeout(() => {
+          button.classList.remove("wrong");
+          message.className = "message";
+        }, 1200);
+      }
+    }
+
+    function nextQuestion() {
+      current++;
+
+      if (current >= questions.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function showResult() {
+      document.getElementById("gameScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.remove("hidden");
+
+      let award = "";
+
+      if (stars >= 35) {
+        award = "🏆 รางวัล: แชมป์พิทักษ์สวนสัตว์!";
+      } else if (stars >= 25) {
+        award = "🦁 รางวัล: เหรียญนักวิทย์สวนสัตว์!";
+      } else if (stars >= 15) {
+        award = "🌟 รางวัล: เพื่อนสัตว์นักสังเกต!";
+      } else {
+        award = "🌱 รางวัล: นักเรียนรู้จิ๋ว ลองเล่นอีกครั้งเพื่อเก็บดาวเพิ่มนะ!";
+      }
+
+      document.getElementById("resultText").innerHTML =
+        `หนูเก็บได้ <strong>${stars} ดาวอุ้งเท้า จาก ${questions.length} ดาว</strong> ⭐🐾`;
+
+      document.getElementById("awardText").textContent = award;
+
+      speak(`เก่งมาก หนูได้ ${stars} ดาว`);
+    }
+
+    function speakQuestion() {
+      const item = questions[current];
+      const text = `${item.q} ข้อหนึ่ง ${item.choices[0]} ข้อสอง ${item.choices[1]} ข้อสาม ${item.choices[2]}`;
+      speak(text);
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) return;
+
+      window.speechSynthesis.cancel();
+
+      const voice = new SpeechSynthesisUtterance(text);
+      voice.lang = "th-TH";
+      voice.rate = 0.82;
+
+      window.speechSynthesis.speak(voice);
+    }
+  </script>
+</body>
+</html>
